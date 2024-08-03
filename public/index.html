@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+    </form>
+    <div id="chatContainer" style="display: none;">
+        <h1>Chat</h1>
+        <div id="messages"></div>
+        <input type="text" id="messageInput" placeholder="Type a message" />
+        <button id="sendButton">Send</button>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const chatContainer = document.getElementById('chatContainer');
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        let socket;
+        let token;
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+            const data = await response.json();
+            token = data.token;
+
+            socket = io({
+                extraHeaders: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            socket.on('message', (message) => {
+                const messageElement = document.createElement('div');
+                messageElement.textContent = `${message.username}: ${message.content}`;
+                messagesDiv.appendChild(messageElement);
+            });
+
+            chatContainer.style.display = 'block';
+            loginForm.style.display = 'none';
+        });
+
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value;
+            socket.emit('sendMessage', message);
+            messageInput.value = '';
+        });
+    </script>
+</body>
+</html>
