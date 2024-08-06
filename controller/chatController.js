@@ -5,9 +5,12 @@ const postMessage = async (req, res) => {
     const userId = req.user.id;
 
     try {
+        console.log('Attempting to create message:', { userId, content });
         const message = await createMessage(userId, content);
+        console.log('Message created successfully:', message);
         return res.status(201).json(message);
     } catch (error) {
+        console.error('Error in postMessage:', error);
         return res.status(500).json({ error: error.message });
     }
 };

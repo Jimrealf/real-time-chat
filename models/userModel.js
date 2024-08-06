@@ -2,12 +2,16 @@ const pool = require('./db');
 const bcrypt = require('bcryptjs');
 
 const createUser = async (username, password) => {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const res = await pool.query(
-        'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
-        [username, hashedPassword]
-    );
-    return res.rows[0];
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const res = await pool.query(
+            'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username',
+            [username, hashedPassword]
+        );
+        return res.rows[0];
+    } catch (error) {
+        throw error;
+    }
 };
 
 const findUserByUsername = async (username) => {
