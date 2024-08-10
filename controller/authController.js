@@ -5,16 +5,18 @@ const bcrypt = require('bcryptjs');
 const register = async (req, res) => {
     const { username, password } = req.body;
     try {
-        console.log('Attempting to create user:', { username });
         const user = await createUser(username, password);
-        console.log('User created successfully:', user);
+
         res.status(201).json(user);
     } catch (error) {
         console.error('Error in register:', error);
         if (error.constraint === 'users_username_key') {
             return res.status(400).json({ error: 'Username already exists' });
         }
-        res.status(500).json({ error: 'Internal server error', details: error.message });
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message,
+        });
     }
 };
 

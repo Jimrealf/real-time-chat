@@ -26,7 +26,6 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-    console.log('New client connected');
 
     socket.on('sendMessage', async (message) => {
         const userId = socket.request.user.id;
